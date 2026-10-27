@@ -653,7 +653,7 @@ docker run -it -v $PWD:/data archivebox/archivebox:dev add --depth=1 'https://ex
 - <img src="https://github.com/ArchiveBox/ArchiveBox/assets/511499/64078483-21d7-4eb1-aa6e-9ad55afe45b8" height="22px"/> From manual imports of URLs from RSS, JSON, CSV, TXT, SQL, HTML, Markdown, etc. files  
   <i>ArchiveBox supports injesting URLs in [any text-based format](https://github.com/ArchiveBox/ArchiveBox/wiki/Usage#import-a-list-of-urls-from-a-text-file).</i>
 
-- <img src="https://github.com/ArchiveBox/ArchiveBox/assets/511499/32b494e6-4de1-4984-8d88-dc02f18e5c34" height="22px"/> From manually exported [browser history](https://github.com/ArchiveBox/ArchiveBox/wiki/Quickstart#2-get-your-list-of-urls-to-archive) or [browser bookmarks](https://github.com/ArchiveBox/ArchiveBox/wiki/Quickstart#2-get-your-list-of-urls-to-archive) (in Netscape format)  
+- <img src="https://github.com/ArchiveBox/ArchiveBox/assets/511499/32b494e6-4de1-4984-8d88-dc02f18e5c34" height="22px"/> From manually exported [browser history](https://github.com/ArchiveBox/ArchiveBox/wiki/Quickstart#2-get-your-list-of-urls-to-archive) or [browser bookmarks](https://github.com/ArchiveBox/ArchiveBox/wiki/Quickstart#2-get-your-list-of-urls-to-archive) (in Netscape HTML or Firefox JSON backup format)  
   <i>Instructions: <a href="https://support.google.com/chrome/answer/96816?hl=en">Chrome</a>, <a href="https://support.mozilla.org/en-US/kb/export-firefox-bookmarks-to-backup-or-transfer">Firefox</a>, <a href="https://github.com/ArchiveBox/ArchiveBox/assets/511499/24ad068e-0fa6-41f4-a7ff-4c26fc91f71a">Safari</a>, <a href="https://support.microsoft.com/en-us/help/211089/how-to-import-and-export-the-internet-explorer-favorites-folder-to-a-32-bit-version-of-windows">IE</a>, <a href="https://help.opera.com/en/latest/features/#bookmarks:~:text=Click%20the%20import/-,export%20button,-on%20the%20bottom">Opera</a>, <a href="https://github.com/ArchiveBox/ArchiveBox/wiki/Quickstart#2-get-your-list-of-urls-to-archive">and more...</a></i>
 
 - <img src="https://github.com/ArchiveBox/ArchiveBox/assets/511499/4f7bd318-265c-4235-ad25-38be89946b12" height="22px"/> From URLs visited through a [MITM Proxy](https://mitmproxy.org/) with [`archivebox-proxy`](https://github.com/ArchiveBox/archivebox-proxy)  
@@ -671,6 +671,7 @@ docker run -it -v $PWD:/data archivebox/archivebox:dev add --depth=1 'https://ex
 archivebox add 'https://example.com/some/page'
 archivebox add --depth=1 --plugins=parse_rss_urls "file://$HOME/Downloads/some_feed.xml"
 archivebox add --depth=1 'https://news.ycombinator.com#2020-12-12'
+archivebox add --file ~/Downloads/bookmarks.json --parser=firefox
 echo 'http://example.com' | archivebox add
 echo 'any text with <a href="https://example.com">urls</a> in it' | archivebox add
 

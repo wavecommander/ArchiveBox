@@ -8,7 +8,7 @@ archivebox config --set TIMEOUT=120
 # OR edit ArchiveBox.conf and add this under its existing [ARCHIVING_CONFIG] section:
 TIMEOUT=120
 # OR
-env TIMEOUT=120 archivebox add ~/Downloads/bookmarks_export.html
+env TIMEOUT=120 archivebox add --file ~/Downloads/bookmarks_export.html
 ```
 
 Configuration resolves from schema defaults → `ArchiveBox.conf` → environment → Machine → Persona → Crawl → Snapshot → explicit runtime overrides, subject to each field's scope. Personas store overrides, not copies of system defaults; the Default persona passes through unchanged values. At creation, a crawl stores the resolved `crawl_frozen` settings, including explicit crawl overrides. Persona-owned plugin settings remain inherited unless explicitly overridden on the crawl: later persona edits and credential rotation must reach subsequent snapshots in long-running crawls. Core settings already captured on the crawl remain stable (e.g. `USER_AGENT`); `crawl_execution` settings such as binaries and browser runtime paths are resolved live. Snapshot config contains only local overrides, not another full copy.

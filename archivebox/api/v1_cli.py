@@ -71,7 +71,7 @@ class AddCommandSchema(Schema):
     crawl_max_size: int = 0
     crawl_timeout: int = 0
     snapshot_max_size: int = 0
-    parser: str = "auto"
+    parser: str = Field(default="auto", description="Input parser: auto, txt, html, rss, json, jsonl, netscape, firefox, ...")
     plugins: str = ""
     persona: str = "Default"
     only_new: bool | None = None
