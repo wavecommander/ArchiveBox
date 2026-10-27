@@ -1643,6 +1643,7 @@ class AddView(UserPassesTestMixin, FormView):
 
         urls_input = form.cleaned_data["url"]
         urls = urls_input
+        parser = form.cleaned_data.get("parser") or "auto"
         submitted_lines = [line.strip() for line in urls_input.splitlines() if line.strip()]
         if len(submitted_lines) == 1:
             try:
@@ -1652,6 +1653,7 @@ class AddView(UserPassesTestMixin, FormView):
                 # also needing parser plugins. Multi-line or formatted text
                 # remains verbatim import content for the internal parser root.
                 urls = [validate_url(submitted_lines[0])]
+                parser = "auto"
             except ValueError:
                 pass
         print(f"[+] Adding URL: {urls_input}")
@@ -1717,6 +1719,7 @@ class AddView(UserPassesTestMixin, FormView):
             tag=tag,
             url_allowlist=url_filters.get("allowlist") or "",
             url_denylist=url_filters.get("denylist") or "",
+            parser=parser,
             plugins=plugins,
             persona=persona.name if persona else "Default",
             bg=True,

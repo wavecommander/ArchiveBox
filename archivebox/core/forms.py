@@ -29,6 +29,18 @@ DEPTH_CHOICES = (
 )
 
 
+def get_input_parser_choices() -> list[tuple[str, str]]:
+    """Import parser plugins selectable for submitted text, keyed like `archivebox add --parser`."""
+    choices = [("auto", "Auto-detect (run every import parser)")]
+    for name, plugin in sorted(get_plugin_catalog().items()):
+        if not plugin.manifest.get("x-accepts-internal-input"):
+            continue
+        match = re.fullmatch(r"parse_(.+)_urls", name)
+        title = re.sub(r"^Parse\s+|\s+URLs$", "", str(plugin.manifest.get("title") or name)).strip() or name
+        choices.append((match.group(1) if match else name, f"{title} only"))
+    return choices
+
+
 def _split_strip(value: str, delimiter: str) -> list[str]:
     return [part.strip() for part in value.split(delimiter) if part.strip()]
 
@@ -110,6 +122,12 @@ class AddLinkForm(PluginConfigFormMixin, forms.Form):
             },
         ),
         required=True,
+    )
+    parser = forms.ChoiceField(
+        label="Input format",
+        required=False,
+        initial="auto",
+        choices=[("auto", "Auto-detect (run every import parser)")],  # populated in __init__
     )
     tag = forms.CharField(
         label="Tags",
@@ -311,6 +329,7 @@ class AddLinkForm(PluginConfigFormMixin, forms.Form):
         if not self.can_override_crawl_config:
             persona_queryset = filter_personas_by_permissions(persona_queryset, {PERMISSIONS_PUBLIC})
         self.fields["persona"].queryset = persona_queryset
+        self.fields["parser"].choices = get_input_parser_choices()
 
         selected_persona = persona_queryset.filter(name__iexact="Default").first() or persona_queryset.first()
         default_config = get_config(persona=selected_persona) if selected_persona else get_config()
@@ -389,6 +408,9 @@ class AddLinkForm(PluginConfigFormMixin, forms.Form):
         if not list(find_all_urls(value)):
             raise forms.ValidationError("Enter at least one valid URL.")
         return value
+
+    def clean_parser(self):
+        return str(self.cleaned_data.get("parser") or "auto").strip().lower() or "auto"
 
     def clean_url_filters(self):
         from archivebox.crawls.models import Crawl

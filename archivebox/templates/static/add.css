@@ -377,6 +377,46 @@ select {
   color: #ba2121;
 }
 
+.url-input-format {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.url-input-format label {
+  margin: 0;
+  font-weight: 600;
+}
+
+.url-input-format select {
+  padding: 3px 6px;
+  font-size: inherit;
+}
+
+.url-input-format {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.url-input-format label {
+  margin: 0;
+  font-weight: 600;
+}
+
+.url-input-format select {
+  padding: 3px 6px;
+  font-size: inherit;
+}
+
 .url-editor-shell {
   position: relative;
 }

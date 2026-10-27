@@ -8,6 +8,7 @@ import requests
 from archivebox.core.models import ArchiveResult, Snapshot
 from archivebox.crawls.models import Crawl, CrawlSchedule
 from archivebox.tests.test_orm_helpers import use_archivebox_db
+from archivebox.tests.test_cli_add_1 import zotero_rdf_fixture
 from .conftest import (
     cli_env,
     create_admin_and_token,
@@ -52,6 +53,12 @@ IMPORT_FORMAT_EXPECTATIONS = {
         "date": "2024-01-04",
         "tags": {"jsonl-tag", "metadata"},
     },
+    "zotero": {
+        "url": "https://example.com/?archivebox-zotero-import=1",
+        "title": "Zotero Import Example",
+        "date": "2024-01-05",
+        "tags": {"zotero-tag", "metadata"},
+    },
     "txt": {
         "url": "https://example.org/",
     },
@@ -66,6 +73,7 @@ def write_import_format_files(base_dir: Path, urls: dict[str, str] | None = None
         "json": "https://example.com/?archivebox-json-import=1",
         "jsonl": "https://example.com/?archivebox-jsonl-import=1",
         "txt": "https://example.org/",
+        "zotero": "https://example.com/?archivebox-zotero-import=1",
         **(urls or {}),
     }
     files = {
@@ -75,6 +83,7 @@ def write_import_format_files(base_dir: Path, urls: dict[str, str] | None = None
         "json": base_dir / "test_bookmarks.json",
         "jsonl": base_dir / "test_bookmarks.jsonl",
         "txt": base_dir / "test_urls.txt",
+        "zotero": base_dir / "test_zotero.rdf",
     }
     files["rss"].write_text(
         f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -146,6 +155,7 @@ def write_import_format_files(base_dir: Path, urls: dict[str, str] | None = None
         f"Plain text import fixture containing {urls['txt']} as a real live URL.\n",
         encoding="utf-8",
     )
+    files["zotero"].write_text(zotero_rdf_fixture(urls["zotero"]), encoding="utf-8")
     return files
 
 
@@ -470,6 +480,7 @@ def test_public_add_view_import_text_formats_preserve_metadata_and_resume_withou
         "json": recursive_test_site["child_urls"][2],
         "jsonl": recursive_test_site["deep_urls"][0],
         "txt": recursive_test_site["deep_urls"][1],
+        "zotero": recursive_test_site["deep_urls"][2],
     }
     import_files = write_import_format_files(tmp_path, import_urls)
     import_expectations = {name: {**case, "url": import_urls[name]} for name, case in IMPORT_FORMAT_EXPECTATIONS.items()}
@@ -478,7 +489,7 @@ def test_public_add_view_import_text_formats_preserve_metadata_and_resume_withou
     port = get_free_port()
     env = cli_env(
         port=port,
-        PLUGINS="parse_html_urls,parse_jsonl_urls,parse_netscape_urls,parse_rss_urls,parse_txt_urls,wget",
+        PLUGINS="parse_html_urls,parse_jsonl_urls,parse_netscape_urls,parse_rss_urls,parse_txt_urls,parse_zotero_urls,wget",
         SAVE_WGET="True",
         USE_CHROME="False",
         PUBLIC_INDEX="True",
@@ -587,7 +598,7 @@ def test_public_add_view_rejects_file_path_and_shell_injection_payloads(tmp_path
     port = get_free_port()
     env = cli_env(
         port=port,
-        PLUGINS="parse_html_urls,parse_jsonl_urls,parse_netscape_urls,parse_rss_urls,parse_txt_urls,wget",
+        PLUGINS="parse_html_urls,parse_jsonl_urls,parse_netscape_urls,parse_rss_urls,parse_txt_urls,parse_zotero_urls,wget",
         SAVE_WGET="True",
         USE_CHROME="False",
         PUBLIC_INDEX="True",

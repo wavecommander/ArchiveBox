@@ -659,6 +659,9 @@ docker run -it -v $PWD:/data archivebox/archivebox:dev add --depth=1 'https://ex
 - <img src="https://github.com/ArchiveBox/ArchiveBox/assets/511499/4f7bd318-265c-4235-ad25-38be89946b12" height="22px"/> From URLs visited through a [MITM Proxy](https://mitmproxy.org/) with [`archivebox-proxy`](https://github.com/ArchiveBox/archivebox-proxy)  
   <i>Provides [realtime archiving](https://github.com/ArchiveBox/ArchiveBox/issues/577) of all traffic from any device going through the proxy.</i>
 
+- <img src="https://www.zotero.org/favicon.ico" height="22px"/> From a [Zotero](https://www.zotero.org/) library export (`File > Export Library...` as Zotero RDF, CSV, or CSL JSON)  
+  <i>Upload the export on the <code>/add/</code> page with <code>Input format: Zotero</code>, or run <code>archivebox add --parser=zotero &lt; My-Library.rdf</code>. Item URLs (and DOI links) are imported with their titles, tags, collections, date added, abstracts, notes, and web snapshot attachments.</i>
+
 - <img src="https://getpocket.com/favicon.ico" height="22px"/> From bookmarking services or social media (e.g. Twitter bookmarks, Reddit saved posts, etc.)  
   <i>Instructions: <a href="https://getpocket.com/export">Pocket</a>, <a href="https://pinboard.in/export/">Pinboard</a>, <a href="https://www.instapaper.com/user">Instapaper</a>, <a href="https://shaarli.readthedocs.io/en/master/Usage/#importexport">Shaarli</a>, <a href="https://www.groovypost.com/howto/howto/export-delicious-bookmarks-xml/">Delicious</a>, <a href="https://github.com/csu/export-saved-reddit">Reddit Saved</a>, <a href="https://doc.wallabag.org/en/user/import/wallabagv2.html">Wallabag</a>, <a href="http://help.unmark.it/import-export">Unmark.it</a>, <a href="https://www.addictivetips.com/web/onetab-save-close-all-chrome-tabs-to-restore-export-or-import/">OneTab</a>, <a href="https://github.com/ArchiveBox/ArchiveBox/issues/648">Firefox Sync</a>, <a href="https://github.com/ArchiveBox/ArchiveBox/wiki/Quickstart#2-get-your-list-of-urls-to-archive">and more...</a></i>
 
@@ -670,6 +673,7 @@ docker run -it -v $PWD:/data archivebox/archivebox:dev add --depth=1 'https://ex
 # archivebox add --help
 archivebox add 'https://example.com/some/page'
 archivebox add --depth=1 --plugins=parse_rss_urls "file://$HOME/Downloads/some_feed.xml"
+archivebox add --parser=zotero < ~/Downloads/My-Zotero-Library.rdf
 archivebox add --depth=1 'https://news.ycombinator.com#2020-12-12'
 echo 'http://example.com' | archivebox add
 echo 'any text with <a href="https://example.com">urls</a> in it' | archivebox add

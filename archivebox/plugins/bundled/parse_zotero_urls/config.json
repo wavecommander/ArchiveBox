@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Parse Zotero URLs",
+  "description": "Parse Zotero library exports (Zotero RDF, Zotero CSV, CSL JSON) and emit item URLs with their titles, tags, dates, abstracts and notes as JSONL snapshot records.",
+  "type": "object",
+  "additionalProperties": false,
+  "required_plugins": [],
+  "required_binaries": [],
+  "output_mimetypes": [
+    "application/x-ndjson"
+  ],
+  "properties": {
+    "PARSE_ZOTERO_URLS_ENABLED": {
+      "type": "boolean",
+      "default": true,
+      "x-aliases": [
+        "USE_PARSE_ZOTERO_URLS"
+      ],
+      "description": "Enable Zotero library export URL parsing"
+    },
+    "PARSE_ZOTERO_URLS_INCLUDE_ATTACHMENTS": {
+      "type": "boolean",
+      "default": true,
+      "description": "Also import the URLs of web snapshot / linked URL attachments when they differ from their parent item's URL"
+    },
+    "PARSE_ZOTERO_URLS_DOI_FALLBACK": {
+      "type": "boolean",
+      "default": true,
+      "description": "Import items that have a DOI but no URL as https://doi.org/<DOI>"
+    },
+    "PARSE_ZOTERO_URLS_COLLECTION_TAGS": {
+      "type": "boolean",
+      "default": true,
+      "description": "Add the names of the Zotero collections an item belongs to as tags"
+    },
+    "PARSE_ZOTERO_URLS_ITEMTYPE_TAGS": {
+      "type": "boolean",
+      "default": false,
+      "description": "Add a zotero:<itemType> tag (e.g. zotero:journalArticle) to each imported item"
+    }
+  },
+  "x-accepts-internal-input": true,
+  "category": "postprocessing",
+  "display_order": 40,
+  "snapshot_output_group": "metadata"
+}

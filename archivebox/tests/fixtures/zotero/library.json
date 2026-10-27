@@ -1,0 +1,42 @@
+[
+	{
+		"id": "doe2023reserved",
+		"type": "article-journal",
+		"abstract": "A study of example.com and friends.",
+		"container-title": "Journal of Examples",
+		"DOI": "10.1000/example.2023.001",
+		"ISSN": "1234-5678",
+		"page": "1-9",
+		"title": "Reserved Domains in Practice",
+		"URL": "https://example.com/journal/reserved-domains",
+		"volume": "12",
+		"author": [
+			{ "family": "Doe", "given": "Jane" },
+			{ "family": "Roe", "given": "Richard" }
+		],
+		"accessed": { "date-parts": [[2024, 1, 5]] },
+		"issued": { "date-parts": [[2023, 5, 1]] }
+	},
+	{
+		"id": "iana2024example",
+		"type": "webpage",
+		"title": "IANA Example Domains",
+		"URL": "https://www.iana.org/help/example-domains",
+		"accessed": { "date-parts": [[2024, 2, 6]] },
+		"issued": { "date-parts": [[2024]] }
+	},
+	{
+		"id": "book2022offline",
+		"type": "book",
+		"ISBN": "978-0-00-000000-0",
+		"title": "Book Without Any Link",
+		"issued": { "date-parts": [[2022]] }
+	},
+	{
+		"id": "doionly2024",
+		"type": "article-journal",
+		"DOI": "10.1000/doi-only.2024",
+		"title": "DOI Only Article",
+		"issued": { "date-parts": [[2024]] }
+	}
+]

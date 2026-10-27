@@ -1114,7 +1114,7 @@ class Crawl(ModelWithDeleteAfter, ModelWithOutputDir, ModelWithConfig, ModelWith
             # Multiple parsers can discover the same URL from one import root.
             # Keep the record with the richest user-facing metadata so generic
             # text/HTML extraction does not erase RSS/Netscape/JSON fields.
-            return sum(bool(record.get(field)) for field in ("title", "bookmarked_at", "timestamp", "tags"))
+            return sum(bool(record.get(field)) for field in ("title", "bookmarked_at", "timestamp", "tags", "notes"))
 
         # Parser records and explicit seeds already have URL boundaries. Prose
         # cleanup here corrupts literal fragments, queries and trailing dots.
@@ -1164,6 +1164,10 @@ class Crawl(ModelWithDeleteAfter, ModelWithOutputDir, ModelWithConfig, ModelWith
             if bookmarked_at and snapshot.bookmarked_at != bookmarked_at:
                 snapshot.bookmarked_at = bookmarked_at
                 update_fields.append("bookmarked_at")
+            notes = str(record.get("notes") or "").strip()
+            if notes and not snapshot.notes:
+                snapshot.notes = notes
+                update_fields.append("notes")
             if update_fields:
                 snapshot.save(update_fields=[*update_fields, "modified_at"])
             tag_names = {
@@ -1214,6 +1218,9 @@ class Crawl(ModelWithDeleteAfter, ModelWithOutputDir, ModelWithConfig, ModelWith
                     retry_at=now,
                     bookmarked_at=bookmarked_at,
                     created_at=now,
+                    # Import parsers (e.g. Zotero) carry abstracts/notes that have no
+                    # dedicated column; Snapshot.save() strips any HTML from them.
+                    notes=str(record.get("notes") or "").strip(),
                 ),
             )
         for snapshot in snapshots:
