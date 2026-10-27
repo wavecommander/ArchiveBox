@@ -1219,6 +1219,9 @@ class Crawl(ModelWithDeleteAfter, ModelWithOutputDir, ModelWithConfig, ModelWith
                     retry_at=now,
                     bookmarked_at=bookmarked_at,
                     created_at=now,
+                    # Import parsers (e.g. Zotero) carry abstracts/notes that have no
+                    # dedicated column; Snapshot.save() strips any HTML from them.
+                    notes=str(record.get("notes") or "").strip(),
                 ),
             )
         for snapshot in snapshots:

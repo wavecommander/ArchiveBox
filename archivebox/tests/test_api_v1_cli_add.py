@@ -21,6 +21,7 @@ from .conftest import (
 from archivebox.core.models import Snapshot, SnapshotTag
 from archivebox.crawls.models import Crawl
 from archivebox.tests.test_orm_helpers import use_archivebox_db
+from archivebox.tests.test_cli_add_1 import zotero_rdf_fixture
 
 pytestmark = pytest.mark.django_db(transaction=True)
 
@@ -53,6 +54,12 @@ IMPORT_FORMAT_EXPECTATIONS = {
         "date": "2024-01-04",
         "tags": {"jsonl-tag", "metadata"},
     },
+    "zotero": {
+        "url": "https://example.com/?archivebox-zotero-import=1",
+        "title": "Zotero Import Example",
+        "date": "2024-01-05",
+        "tags": {"zotero-tag", "metadata"},
+    },
     "txt": {
         "url": "https://example.org/",
     },
@@ -67,6 +74,7 @@ def write_import_format_files(base_dir: Path) -> dict[str, Path]:
         "json": base_dir / "test_bookmarks.json",
         "jsonl": base_dir / "test_bookmarks.jsonl",
         "txt": base_dir / "test_urls.txt",
+        "zotero": base_dir / "test_zotero.rdf",
     }
     files["rss"].write_text(
         """<?xml version="1.0" encoding="UTF-8"?>
@@ -138,13 +146,14 @@ def write_import_format_files(base_dir: Path) -> dict[str, Path]:
         "Plain text import fixture containing https://example.org/ as a real live URL.\n",
         encoding="utf-8",
     )
+    files["zotero"].write_text(zotero_rdf_fixture("https://example.com/?archivebox-zotero-import=1"), encoding="utf-8")
     return files
 
 
 IMPORT_FORMAT_ENV = {
     "USE_COLOR": "False",
     "SHOW_PROGRESS": "False",
-    "PLUGINS": "parse_html_urls,parse_jsonl_urls,parse_netscape_urls,parse_rss_urls,parse_txt_urls",
+    "PLUGINS": "parse_html_urls,parse_jsonl_urls,parse_netscape_urls,parse_rss_urls,parse_txt_urls,parse_zotero_urls",
     "USE_CHROME": "False",
     "URL_ALLOWLIST": r"example\.com|example\.org|iana\.org|www\.iana\.org",
 }

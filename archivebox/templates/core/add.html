@@ -76,6 +76,14 @@
                                     <span>or drag &amp; drop in files containing URLs or browser bookmark exports (Netscape HTML, Firefox JSON)</span>
                                 </div>
                                 <div id="url-upload-status" class="help-text" role="status"></div>
+                                <div class="url-input-format">
+                                    {{ form.parser.label_tag }}
+                                    {{ form.parser }}
+                                    <span class="help-text">Pick a format for library exports (e.g. Zotero RDF) so only that parser reads the text.</span>
+                                </div>
+                                {% if form.parser.errors %}
+                                    <div class="error">{{ form.parser.errors }}</div>
+                                {% endif %}
                             </div>
                             <aside class="detected-urls-panel" aria-live="polite">
                                 <div class="detected-urls-header">
@@ -1113,6 +1121,21 @@
                     uploadStatus.classList.toggle('url-upload-warning', warning);
                 }
 
+                const parserSelect = document.querySelector('select[name="parser"]');
+                const parserSniffers = [
+                    ['zotero', /xmlns:z="http:\/\/www\.zotero\.org\/namespaces\/export#"|^\ufeff?"Key","Item Type","Publication Year"/],
+                ];
+                function selectImportParserFor(text) {
+                    // Uploaded library exports pick their own parser so generic text parsers
+                    // do not also turn every namespace/schema URL in the file into a snapshot.
+                    if (!parserSelect || parserSelect.value !== 'auto') return;
+                    for (const [value, pattern] of parserSniffers) {
+                        if (pattern.test(text) && Array.from(parserSelect.options).some(option => option.value === value)) {
+                            parserSelect.value = value;
+                            return;
+                        }
+                    }
+                }
                 function importURLFiles(files) {
                     if (!files.length) return;
                     pendingFileReads++;
@@ -1130,6 +1153,7 @@
                                     errors.push(`${file.name}: no URLs found.`);
                                 }
                                 if (!text) continue;
+                                selectImportParserFor(text);
                                 urlTextarea.value += (urlTextarea.value && !urlTextarea.value.endsWith('\n') ? '\n' : '') + text;
                                 urlTextarea.dispatchEvent(new Event('input', { bubbles: true }));
                                 urlTextarea.dispatchEvent(new Event('change', { bubbles: true }));

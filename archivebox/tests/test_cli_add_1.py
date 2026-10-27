@@ -59,10 +59,47 @@ IMPORT_FORMAT_EXPECTATIONS = {
         "date": "2024-01-04",
         "tags": {"jsonl-tag", "metadata"},
     },
+    "zotero": {
+        "url": "https://example.com/?archivebox-zotero-import=1",
+        "title": "Zotero Import Example",
+        "date": "2024-01-05",
+        "tags": {"zotero-tag", "metadata"},
+    },
     "txt": {
         "url": "https://example.org/",
     },
 }
+
+
+def zotero_rdf_fixture(url: str) -> str:
+    """A minimal Zotero RDF library export (File > Export Library > Zotero RDF) with one tagged webpage item."""
+    return f"""<rdf:RDF
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:z="http://www.zotero.org/namespaces/export#"
+ xmlns:dcterms="http://purl.org/dc/terms/"
+ xmlns:bib="http://purl.org/net/biblio#"
+ xmlns:foaf="http://xmlns.com/foaf/0.1/"
+ xmlns:dc="http://purl.org/dc/elements/1.1/"
+ xmlns:link="http://purl.org/rss/1.0/modules/link/">
+    <bib:Document rdf:about="{url}">
+        <z:itemType>webpage</z:itemType>
+        <dc:subject>zotero-tag</dc:subject>
+        <dc:subject>
+            <z:AutomaticTag>
+                <rdf:value>metadata</rdf:value>
+            </z:AutomaticTag>
+        </dc:subject>
+        <dc:title>Zotero Import Example</dc:title>
+        <dcterms:abstract>Zotero import fixture abstract.</dcterms:abstract>
+        <dc:identifier>
+            <dcterms:URI>
+                <rdf:value>{url}</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dcterms:dateSubmitted>2024-01-05 10:11:12</dcterms:dateSubmitted>
+    </bib:Document>
+</rdf:RDF>
+"""
 
 
 def write_import_format_files(base_dir: Path) -> dict[str, Path]:
@@ -73,6 +110,7 @@ def write_import_format_files(base_dir: Path) -> dict[str, Path]:
         "json": base_dir / "test_bookmarks.json",
         "jsonl": base_dir / "test_bookmarks.jsonl",
         "txt": base_dir / "test_urls.txt",
+        "zotero": base_dir / "test_zotero.rdf",
     }
     files["rss"].write_text(
         """<?xml version="1.0" encoding="UTF-8"?>
@@ -144,13 +182,14 @@ def write_import_format_files(base_dir: Path) -> dict[str, Path]:
         "Plain text import fixture containing https://example.org/ as a real live URL.\n",
         encoding="utf-8",
     )
+    files["zotero"].write_text(zotero_rdf_fixture("https://example.com/?archivebox-zotero-import=1"), encoding="utf-8")
     return files
 
 
 IMPORT_FORMAT_ENV = {
     "USE_COLOR": "False",
     "SHOW_PROGRESS": "False",
-    "PLUGINS": "parse_html_urls,parse_jsonl_urls,parse_netscape_urls,parse_rss_urls,parse_txt_urls",
+    "PLUGINS": "parse_html_urls,parse_jsonl_urls,parse_netscape_urls,parse_rss_urls,parse_txt_urls,parse_zotero_urls",
     "SAVE_WGET": "False",
     "SAVE_HEADERS": "False",
     "USE_CHROME": "False",

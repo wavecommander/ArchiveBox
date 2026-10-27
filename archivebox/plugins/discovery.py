@@ -28,6 +28,8 @@ class PluginSpecialConfig(TypedDict):
 
 
 BUILTIN_PLUGINS_DIR = Path(get_plugins_dir()).resolve()
+# Plugins that ship with ArchiveBox itself rather than the abx-plugins package.
+BUNDLED_PLUGINS_DIR = Path(__file__).resolve().parent / "bundled"
 USER_PLUGINS_DIR = CONSTANTS.USER_PLUGINS_DIR
 
 
@@ -38,7 +40,7 @@ def iter_plugin_dirs() -> list[Path]:
 
 @lru_cache(maxsize=1)
 def get_plugin_catalog() -> PluginCatalog:
-    return PluginCatalog.discover(extra_plugin_dirs=[USER_PLUGINS_DIR], runtime="archivebox")
+    return PluginCatalog.discover(extra_plugin_dirs=[BUNDLED_PLUGINS_DIR, USER_PLUGINS_DIR], runtime="archivebox")
 
 
 @lru_cache(maxsize=1)

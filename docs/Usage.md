@@ -100,6 +100,19 @@ archivebox add < ~/Downloads/pinboard_bookmarks.json
 archivebox add < ~/Downloads/any_text_containing_urls.txt
 ```
 
+Library exports that also contain schema/namespace URLs (e.g. Zotero RDF) should name their parser so only that
+parser reads the file. The same choice is available as **Input format** on the `/add/` page:
+
+```bash
+# Zotero: File > Export Library... > Zotero RDF (richest), CSV, or CSL JSON
+archivebox add --parser=zotero < ~/Downloads/My-Library.rdf
+```
+
+Zotero items are imported by their URL (or `https://doi.org/<DOI>` when they only have a DOI) with the Zotero
+title, tags, collection names (as tags), date added, and the abstract, child notes, creators and DOI in the
+snapshot notes. Web snapshot / linked URL attachments are imported as their own snapshots. Local PDF files are
+not imported.
+
 ---
 
 ### Import list of links from browser history
