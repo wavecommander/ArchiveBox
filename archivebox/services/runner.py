@@ -66,6 +66,7 @@ from archivebox.config.common import (
     ArchiveBoxBaseConfig,
     filter_crawl_env,
     normalize_runtime_config,
+    rprint,
     _is_cookie_file_config_key,
     _plugin_enabled_config_keys,
 )
@@ -77,6 +78,7 @@ from archivebox.search.sonic_daemon import register_sonic_daemon_event_handler
 from archivebox.workers.models import ACTIVE_STATE_LEASE_SECONDS
 from archivebox.uuid_compat import compact_uuid
 from archivebox.crawls.locks import crawl_lifecycle_lock
+from archivebox.misc.util import iri_to_uri
 
 from .archive_result_service import ArchiveResultService
 from .binary_service import ArchiveBoxBinaryService, project_abxpkg_derived_cache_to_db
@@ -130,6 +132,12 @@ def _runner_console_line(*, crawl=None, crawl_id=None, snapshot=None, status: st
         label = str(crawl_id)
     line.append(_runner_label(label, reserve=prefix_width))
     Console(highlight=False).print(line)
+
+
+# Parsers that read a bookmark export's real structure vs. generic scrapers that
+# regex any URL-shaped string out of the same text.
+STRUCTURED_BOOKMARK_PARSERS = frozenset({"parse_netscape_urls", "parse_firefox_urls"})
+GENERIC_TEXT_PARSERS = frozenset({"parse_txt_urls", "parse_html_urls"})
 
 
 def _count_selected_hooks(catalog: PluginCatalog, selected_plugins: list[str] | None) -> int:
@@ -947,6 +955,21 @@ class CrawlRunner:
             ),
         )
         records = [snapshot.model_dump(mode="json") for snapshot in discovered]
+        # In a bookmark export, generic text scrapers also match incidental URLs
+        # (favicon ICON_URI/iconUri, keyword templates) that are not bookmarks.
+        # Keep only the generic-parser URLs the structured parsers also emitted.
+        bookmark_uris = {
+            iri_to_uri(str(record.get("url") or "")) for record in records if record.get("plugin") in STRUCTURED_BOOKMARK_PARSERS
+        }
+        if bookmark_uris:
+            kept = [
+                record
+                for record in records
+                if record.get("plugin") not in GENERIC_TEXT_PARSERS or iri_to_uri(str(record.get("url") or "")) in bookmark_uris
+            ]
+            if len(kept) != len(records):
+                rprint(f"[dim][*] Bookmark export detected: ignored {len(records) - len(kept)} URL(s) found by generic text parsers[/dim]")
+            records = kept
         created = self.crawl.create_discovered_snapshots(None, records, depth=0)
         if created:
             self.primary_url = created[0].url
