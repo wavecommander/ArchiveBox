@@ -105,7 +105,8 @@ class AddLinkForm(PluginConfigFormMixin, forms.Form):
                     "Examples:\n\n"
                     "https://example.com\n\n"
                     "https://news.ycombinator.com,https://news.google.com\n\n"
-                    "Or any text-based format [containing URLs](https://github.com/ArchiveBox/ArchiveBox)..."
+                    "Or any text-based format [containing URLs](https://github.com/ArchiveBox/ArchiveBox)...\n\n"
+                    "Or paste / drop a browser bookmarks export (Netscape HTML or Firefox JSON backup) — titles, tags, folders and dates are imported."
                 ),
             },
         ),

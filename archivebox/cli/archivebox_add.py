@@ -50,6 +50,22 @@ def _collect_input_urls(args: tuple[str, ...], *, parser: str = "auto") -> list[
     return urls
 
 
+def _read_input_files(files: tuple[Path, ...]) -> str:
+    """Read bookmark/URL export files verbatim; their text becomes Crawl.urls."""
+    texts: list[str] = []
+    for path in files:
+        try:
+            # newline="" keeps CRLF/CR bytes untouched so Crawl.urls matches the file.
+            with path.open(encoding="utf-8", newline="") as file:
+                texts.append(file.read())
+        except UnicodeDecodeError as err:
+            raise click.BadParameter(
+                f"{path} is not a text bookmark/URL export (compressed .jsonlz4 Firefox backups are not supported, export as .json instead).",
+                param_hint="--file",
+            ) from err
+    return "\n".join(texts)
+
+
 @enforce_types
 def add(
     urls: str | list[str],
@@ -71,7 +87,7 @@ def add(
     created_by_id: int | None = None,
     config: dict[str, Any] | None = None,
 ) -> tuple[Crawl, QuerySet[Snapshot]]:
-    """Add a URL list or imported URL document to a new Crawl."""
+    """Add a URL list or imported URL document (txt, RSS, Netscape/Firefox bookmarks, JSON, ...) to a new Crawl."""
 
     from rich import print
 
@@ -353,7 +369,11 @@ def add(
 @click.option("--tag", "-t", default="", help="Comma-separated list of tags to add to each snapshot e.g. tag1,tag2,tag3")
 @click.option("--url-allowlist", "--domain-allowlist", default="", help="Comma-separated URL/domain allowlist for this crawl")
 @click.option("--url-denylist", "--domain-denylist", default="", help="Comma-separated URL/domain denylist for this crawl")
-@click.option("--parser", default="auto", help="Parser for reading input URLs (auto, txt, html, rss, json, jsonl, netscape, ...)")
+@click.option(
+    "--parser",
+    default="auto",
+    help="Parser for reading input URLs (auto, txt, html, rss, json, jsonl, netscape, firefox, ...)",
+)
 @click.option("--plugins", "-p", default="", help="Comma-separated list of plugins to run e.g. title,favicon,screenshot,singlefile,...")
 @click.option("--extract", default="", help="Comma-separated plugins or output types to extract e.g. title,pdf,text/html,image,...")
 @click.option("--persona", default="Default", help="Authentication profile to use when archiving")
@@ -368,16 +388,29 @@ def add(
 @click.option("--overwrite", is_flag=True, help="Re-archive URLs even if they already exist (alias for --no-only-new)")
 @click.option("--update", is_flag=True, help="Re-archive URLs even if they already exist (alias for --no-only-new)")
 @click.option("--bg", is_flag=True, help="Run archiving in background (queue work and return immediately)")
+@click.option(
+    "--file",
+    "-f",
+    "files",
+    multiple=True,
+    type=click.Path(exists=True, dir_okay=False, readable=True, path_type=Path),
+    help="Read URLs from a file (text list, Netscape HTML or Firefox JSON bookmarks export, RSS, ...); repeatable",
+)
 @click.argument("urls", nargs=-1, type=click.Path())
 @docstring(add.__doc__)
 def main(**kwargs):
-    """Add a new URL or list of URLs to your archive"""
+    """Add a new URL or list of URLs to your archive (from arguments, --file, or stdin)"""
 
     from archivebox.core.shutdown_util import foreground_parent_watchdog, foreground_shutdown_signals
 
     with foreground_shutdown_signals(), foreground_parent_watchdog():
         raw_urls = kwargs.pop("urls")
-        if raw_urls:
+        files = kwargs.pop("files")
+        if files and raw_urls:
+            raise click.UsageError("Pass URLs as arguments or with --file, not both.")
+        if files:
+            urls = _read_input_files(files)
+        elif raw_urls:
             urls = _collect_input_urls(raw_urls, parser=kwargs.get("parser", "auto"))
         elif not sys.stdin.isatty():
             urls = sys.stdin.read()
